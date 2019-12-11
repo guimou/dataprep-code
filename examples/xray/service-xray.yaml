@@ -1,0 +1,17 @@
+apiVersion: serving.knative.dev/v1alpha1 
+kind: Service
+metadata:
+  name: xray
+  namespace: xray
+spec:
+  template:
+    spec:
+      containers:
+      - image: quay.io/guimou/xray:master
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          value: 
+        - name: AWS_SECRET_ACCESS_KEY
+          value: 
+        - name: service_point
+          value: 

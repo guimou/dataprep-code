@@ -1,4 +1,0 @@
-kncloudevents
-tensorflow
-keras
-boto3
