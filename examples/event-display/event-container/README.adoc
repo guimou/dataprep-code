@@ -1,0 +1,1 @@
+Python implementation of event-display container to use with KServing.

@@ -1,0 +1,64 @@
+# Logging bucket notifications through Kafka and KServing 
+
+## Requirements
+- A Kafka cluster with a configured topic that receives notifications from buckets (in this example "storage")
+- KServing and KEventing installed.
+- A container image that receives events and logs them to the console (source code in event-container folder)
+- In this example all the resources are created in the namespace "event-display"
+
+## Create a listening KNative service to log events to console
+This service will take care of container instanciation and scaling:
+
+.service-event-display.yaml
+[source,yaml]
+----
+apiVersion: serving.knative.dev/v1alpha1 
+kind: Service
+metadata:
+  name: logevents
+  namespace: event-display
+spec:
+  template:
+    spec:
+      containers:
+      - image: quay.io/guimou/event-display:master
+----
+Create the service:
+[source,role="execute"]
+----
+oc create -f service-event-display.yaml
+----
+
+## Create KafkaSource listener to hook to service
+This listener will handle Kafka messages coming in and pass them to the service:
+
+.kafkasource.yaml
+[source,yaml]
+----
+apiVersion: sources.eventing.knative.dev/v1alpha1
+kind: KafkaSource
+metadata:
+  name: kafka-source
+  namespace: event-display
+spec:
+  consumerGroup: knative-group
+  bootstrapServers: my-cluster-kafka-bootstrap.kafka:9092
+  topics: storage
+  sink:
+    apiVersion: serving.knative.dev/v1alpha1
+    kind: Service
+    name: logevents
+----
+Create the listener:
+[source,role="execute"]
+----
+oc create -f kafkasource.yaml 
+----
+
+## Monitor events
+You can watch notification events coming in with this command:
+[source,role="execute"]
+----
+kubectl logs -l serving.knative.dev/service=logevents -c user-container -n event-display -f
+----
+_(Note: oc logs... does not work with labels, issue opened)._
