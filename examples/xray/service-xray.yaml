@@ -10,8 +10,14 @@ spec:
       - image: quay.io/guimou/xray:master
         env:
         - name: AWS_ACCESS_KEY_ID
-          value: 
+          valueFrom:
+            secretKeyRef:
+              name: s3-secret
+              key: AWS_ACCESS_KEY_ID 
         - name: AWS_SECRET_ACCESS_KEY
-          value: 
+          valueFrom:
+            secretKeyRef:
+              name: s3-secret
+              key: AWS_SECRET_ACCESS_KEY 
         - name: service_point
           value: 

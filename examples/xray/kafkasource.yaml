@@ -4,7 +4,7 @@ metadata:
   name: kafka-source
   namespace: xray
 spec:
-  consumerGroup: knative-group
+  consumerGroup: xray
   bootstrapServers: my-cluster-kafka-bootstrap.kafka:9092
   topics: storage
   sink:

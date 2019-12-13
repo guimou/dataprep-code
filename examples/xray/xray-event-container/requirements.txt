@@ -1,6 +1,5 @@
-kncloudevents==0.1.*
 tensorflow==2.0.*
 keras==2.3.*
 boto3==1.9.*
-matplotlib==2.0.*
 pillow==6.2.*
+cloudevents==0.2.*
