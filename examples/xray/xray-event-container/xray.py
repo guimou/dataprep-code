@@ -167,7 +167,7 @@ def run_event(event):
             image_object = s3client.get_object(Bucket=bucket_name,Key=img_key)
             img = Image.open(BytesIO(image_object['Body'].read()))
             draw = ImageDraw.Draw(img)
-            font = ImageFont.truetype('FreeMono.ttf', 100)
+            font = ImageFont.truetype('FreeMono.ttf', 50)
             draw.text((0, 0), result['label'], (255), font=font)
 
             # Save image with "-processed" appended to name
