@@ -4,6 +4,7 @@ import numpy as np
 import os
 import logging
 import json
+import random
 
 import http.server
 import socketserver
@@ -15,9 +16,8 @@ from cloudevents.sdk import marshaller
 from keras.models import load_model
 from keras.preprocessing import image
 from io import BytesIO
-from PIL import Image
-from PIL import ImageFont
-from PIL import ImageDraw
+from PIL import Image, ImageFont, ImageDraw, ImageFilter
+from hashlib import blake2b
 
 access_key = os.environ['AWS_ACCESS_KEY_ID']
 secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
@@ -108,7 +108,36 @@ def prediction(new_image):
     except Exception as e:
         logging.error(f"Prediction error: {e}")
         raise   
-    return label
+    prediction = {'label':label,'pred':pred[0][0]}
+    return prediction
+
+def anonymize(img,img_name):
+    # Use GaussianBlur to blur the PII 5 times.
+    logging.info('Blurring')
+    box = (0, img.size[1]-100, 300, img.size[1])
+    crop_img = img.crop(box)
+    blur_img = crop_img.filter(ImageFilter.GaussianBlur(radius=5))
+    img.paste(blur_img, box)
+
+    # Anonymize filename  
+    logging.info('Anonymizing filename') 
+    prefix = img_name.split('_')[0]
+    patient_id = img_name.split('_')[2]
+    suffix = img_name.split('_')[-1]
+    new_img_name = prefix + '_' + 'XXXXXXXX_' + get_study_id(patient_id) + '_XXXX-XX-XX_' + suffix
+
+    anon_data = {'img_anon': img, 'anon_img_name': new_img_name}
+
+    return anon_data
+
+
+def get_study_id(patient_id):
+    # Given a patient id, returns a study id.
+    # In a real implementation this should be replaced by some database lookup.
+    # Here we generate a hash based on patient id
+    h = blake2b(digest_size=4)
+    h.update((int(patient_id)).to_bytes(2, byteorder='big'))
+    return h.hexdigest()
 
 def get_safe_ext(key):
     ext = os.path.splitext(key)[-1].strip('.').upper()
@@ -125,32 +154,44 @@ def run_event(event):
         extracted_data = extract_data(event.Data())
         bucket_eventName = extracted_data['bucket_eventName']
         bucket_name = extracted_data['bucket_name']
-        img_name = extracted_data['bucket_object']
-        logging.info(bucket_eventName + ' ' + bucket_name + ' ' + img_name)
+        img_key = extracted_data['bucket_object']
+        logging.info(bucket_eventName + ' ' + bucket_name + ' ' + img_key)
 
         if bucket_eventName == 's3:ObjectCreated:Put':
             # Load image and make prediction
-            new_image = load_image(bucket_name,img_name)
+            new_image = load_image(bucket_name,img_key)
             result = prediction(new_image)
-            logging.info('result=' + result)
+            logging.info('result=' + result['label'])
 
             # Get original image and print prediction on it
-            image_object = s3client.get_object(Bucket=bucket_name,Key=img_name)
+            image_object = s3client.get_object(Bucket=bucket_name,Key=img_key)
             img = Image.open(BytesIO(image_object['Body'].read()))
             draw = ImageDraw.Draw(img)
             font = ImageFont.truetype('FreeMono.ttf', 100)
-            draw.text((0, 0), result, (255), font=font)
+            draw.text((0, 0), result['label'], (255), font=font)
 
             # Save image with "-processed" appended to name
-            computed_image_key = os.path.splitext(img_name)[0] + '-processed.' + os.path.splitext(img_name)[-1].strip('.')
+            computed_image_key = os.path.splitext(img_key)[0] + '-processed.' + os.path.splitext(img_key)[-1].strip('.')
             buffer = BytesIO()
             img.save(buffer, get_safe_ext(computed_image_key))
             buffer.seek(0)
             sent_data = s3client.put_object(Bucket=bucket_name+'-processed', Key=computed_image_key, Body=buffer)
             if sent_data['ResponseMetadata']['HTTPStatusCode'] != 200:
-                raise logging.error('Failed to upload image {} to bucket {}'.format(computed_image_key, bucket_name))
+                raise logging.error('Failed to upload image {} to bucket {}'.format(computed_image_key, bucket_name + '-processed'))
 
             logging.info('Image processed')
+
+            if result['pred'] > 0.80:
+                img_name = img_key.split('/')[-1]
+                anonymized_data = anonymize(img,img_name)
+                anonymized_image_key = img_key.rsplit('/', 1)[0] + '/' + anonymized_data['anon_img_name']
+                anonymized_img = anonymized_data['img_anon']
+                buffer = BytesIO()
+                anonymized_img.save(buffer, get_safe_ext(anonymized_image_key))
+                buffer.seek(0)
+                sent_data = s3client.put_object(Bucket=bucket_name+'-anonymized', Key=anonymized_image_key, Body=buffer)
+                if sent_data['ResponseMetadata']['HTTPStatusCode'] != 200:
+                    raise logging.error('Failed to upload image {} to bucket {}'.format(anonymized_image_key, bucket_name + '-anonymized'))
 
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
