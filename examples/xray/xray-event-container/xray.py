@@ -141,7 +141,7 @@ def run_event(event):
             font = ImageFont.truetype('FreeMono.ttf', 100)
             draw.text((0, 0), result, (255), font=font)
 
-            # Save image with "-computed" appended to name
+            # Save image with "-processed" appended to name
             computed_image_key = os.path.splitext(img_name)[0] + '-processed.' + os.path.splitext(img_name)[-1].strip('.')
             buffer = BytesIO()
             img.save(buffer, get_safe_ext(computed_image_key))
