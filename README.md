@@ -1,2 +1,2 @@
 # dataprep-code
-Code and snippets related to the dataprep working group
+Code, snippets and demo related to data preparation (acquisition, storage, pre-processing,...) for general analysis and AI/ML workloads.
