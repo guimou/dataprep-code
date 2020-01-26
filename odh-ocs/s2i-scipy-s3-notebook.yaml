@@ -1,0 +1,40 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    build: s2i-scipy-s3-notebook
+  name: s2i-scipy-s3-notebook
+  namespace: odh
+spec:
+  lookupPolicy:
+    local: true
+---
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: s2i-scipy-s3-notebook
+  namespace: odh
+  labels:
+    build: s2i-scipy-s3-notebook
+spec:
+  triggers:
+  - type: ConfigChange
+  source:
+    type: Git
+    git:
+      uri: https://github.com/guimou/jupyter-notebooks
+    contextDir: scipy-notebook
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: s2i-minimal-s3-notebook:3.6
+  output:
+    to:
+      kind: ImageStreamTag
+      name: s2i-scipy-s3-notebook:3.6
+  resources:
+    limits:
+      memory: 2Gi

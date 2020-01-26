@@ -1,0 +1,39 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    build: s2i-minimal-s3-notebook
+  name: s2i-minimal-s3-notebook
+  namespace: odh
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: s2i-minimal-s3-notebook
+  namespace: odh
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: s2i-minimal-s3-notebook:3.6
+  source:
+    contextDir: minimal-notebook
+    git:
+      ref: master
+      uri: https://github.com/guimou/jupyter-notebooks
+    type: Git
+  strategy:
+    sourceStrategy:
+      from:
+        kind: DockerImage
+        name: centos/python-36-centos7:latest
+    type: Source
+  triggers:
+  - type: ConfigChange
+  resources:
+    limits:
+      memory: 2Gi
