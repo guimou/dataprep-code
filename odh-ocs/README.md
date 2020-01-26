@@ -118,3 +118,7 @@ If everytrhing went well, you should see all your images available in the select
 
 ![Jupyter image selector](jh-selector.png)
 
+And when you launch your notebok, you now have access to your bucket, here datalake-odh-... Yeah, I know still have to do some work on naming, as well as timestamp...
+
+![Jupyter data bucket](jupyter-bucket.png)
+
