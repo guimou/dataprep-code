@@ -35,13 +35,6 @@ There are two different ways to use this image:
 
 ![YAML Operator image modification](odh-operator-image.png)
 
-## Role and Rolebinding
-
-As JupyterHub will have to interact with configmaps and secrets created by OCS, we have to create a new role and rolebinding for the Service account it is using. We cannot patch the existing role as the operator would overwrite our modifications.
-
-```bash
-oc apply -f role_jupyterhub-hub-obc.yaml
-```
 
 ## JupyterHub configuration Config Map
 
@@ -91,9 +84,18 @@ You can of course customize this file depending on your needs. The only thing yo
 - `s3_endpoint_url: https://s3-openshift-storage.apps.perf3.ocs.lab.eng.blr.redhat.com/`  (here you should enter your OCS S3 endpoint)
 - `storage_class: ocs-storagecluster-ceph-rbd` (to make ODH use OCS block storage for user's spaces)
 
+
+## Role and Rolebinding
+
+JupyterHub will have to create ObjectBucketClaims and interact with configmaps and secrets created by OCS. We cannot patch the existing role that was created by ODH as the operator would overwrite our modifications. So we have to create a new role and rolebinding for the Service account it is using. 
+
+```bash
+oc apply -f role_jupyterhub-hub-obc.yaml
+```
+
 ## Custom notebooks
 
-As we have said before, we want the notebooks to show the buckets the user has access to. The way it works is important, because we won't only show the connected user's bucket, but also all he has been granted access too. That's a neat feature if you want to share data between users, set up some public repositories,... The only thing you have to do is manage access through the OCS/Noobaa dashboard.
+As we have said before, we want the notebooks to show the buckets the user has access to. The way it works is important, because we won't only show the connected user's bucket, but also all the ones he has been granted access too. That's a neat feature if you want to share data between users, set up some public repositories,... The only thing you have to do is manage access through the OCS/Noobaa dashboard.
 
 Back to implementation. We will use here the S2I feature from OpenShift to build new notebooks which will integrate this bucket functionality.
 
