@@ -21,7 +21,7 @@ However, all the necessary connection information are automatically populated as
 
 ## Prerequisites
 
-- OCS is deployed and working in your OCP cluster.
+- OCS is deployed and working in your OCP cluster. Please take note of your S3 endpoint. That's the route named "s3" in your openshift-storage project.
 - You need to create a project called "odh" and you must be set to work within it. All the commands and configuration files are based on this asumption. If you use another project name, you will have to make the necessary changes to the commands or scripts.
 
 ## Operator image
@@ -73,18 +73,17 @@ oc create cm jupyterhub-cfg2 --from-file=./jupyterhub_config.py -n odh
 
 ## Open Data Hub deployment
 
-We are now ready to deploy Open Data Hub with the configuration that will use this new config map:
-
-```bash
-oc create -f odh-deploy.yaml
-```
-
-You can of course customize this file depending on your needs. The only thing you have to modify compared to the default example are those lines:
+You must customize the odh-deploy.yaml file according to your environment. The minimal things you have to modify compared to the default example are those lines:
 
 - `jupyterhub_configmap_name: jupyterhub-cfg2` (which is not in the default file)
 - `s3_endpoint_url: https://s3-openshift-storage.apps.perf3.ocs.lab.eng.blr.redhat.com/`  (here you should enter your OCS S3 endpoint)
 - `storage_class: ocs-storagecluster-ceph-rbd` (to make ODH use OCS block storage for user's spaces)
 
+You are now ready to deploy Open Data Hub with the configuration that will use this new config map:
+
+```bash
+oc create -f odh-deploy.yaml
+```
 
 ## Role and Rolebinding
 
