@@ -116,11 +116,11 @@ oc create -f s2i-tensorflow-s3-notebook.yaml
 
 ## Result
 
-If everytrhing went well, you should see all your images available in the selector:
+If everytrhing went well, you can connect to JupyterHub and should see all your images available in the selector:
 
 ![Jupyter image selector](jh-selector.png)
 
-And when you launch your notebok, you now have access to your bucket, here datalake-odh-... Yeah, I know still have to do some work on naming, as well as timestamp...
+And when you launch your notebook, you now have direct access to the brand new object storage bucket that was automatically provisioned for you. Here datalake-odh-... (Yeah, I know we still have to do some work on naming, as well as timestamp...).
 
 ![Jupyter data bucket](jupyter-bucket.png)
 
