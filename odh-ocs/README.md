@@ -1,6 +1,6 @@
 # Deploying ODH using OCS
 
-These instructions will show you how to deploy Open Data Hub on top of storage provided by OpenShift Container Platform.
+These instructions will show you how to deploy Open Data Hub on top of storage provided by OpenShift Container Storage.
 
 We will use two different types of storage:
 
@@ -21,11 +21,12 @@ However, all the necessary connection information are automatically populated as
 
 ## Prerequisites
 
-I assume here that you will create a project called "odh" and that you are set to work with it. All the commands and configuration files are based on this asumption. If you use another project name, you will have to make the necessary changes.
+- OCS is deployed and working in your OCP cluster.
+- You need to create a project called "odh" and you must be set to work within it. All the commands and configuration files are based on this asumption. If you use another project name, you will have to make the necessary changes to the commands or scripts.
 
 ## Operator image
 
-The ability to use a custom config_map to add more configuration to JupyterHub is not present yet in version 0.5.0 of Open Data Hub. Therefore we will have to use a custom image until the relevant PR is accepted.
+We will use a custom config_map to add more configuration to JupyterHub. However this feature is not present yet in version 0.5.0 of Open Data Hub. Therefore we will have to use a custom image until the relevant PR is accepted.
 This image is at: quay.io/llasmith/opendatahub-operator:jupyterhub-config
 
 There are two different ways to use this image:
