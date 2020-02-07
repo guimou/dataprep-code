@@ -102,15 +102,15 @@ def create_claim(username):
         time.sleep(5)
     return user_bucket_name, aws_access_key, aws_secret_access_key
 
-def load_config_map(username):
+def load_config_map(spawner_username):
     buckets_config_maps = get_noobaa_config_maps()
     for cm_name in buckets_config_maps:
         username = cm_name.replace('odh-bucket-','')
         print(username)
-        if username == escape(username):
+        if username == escape(spawner_username):
             user_bucket_name, aws_access_key, aws_secret_access_key = load_keys(cm_name)
             return user_bucket_name, aws_access_key, aws_secret_access_key
-    user_bucket_name, aws_access_key, aws_secret_access_key = create_claim(escape(username))
+    user_bucket_name, aws_access_key, aws_secret_access_key = create_claim(escape(spawner_username))
     return user_bucket_name, aws_access_key, aws_secret_access_key
 
 def profile_plus_s3(spawner, pod):
