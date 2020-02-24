@@ -78,9 +78,9 @@ class CloudeventsServer(object):
                 raise
 
 def extract_data(msg):
-    bucket_eventName=msg['Records'][0]['eventName']
-    bucket_name=msg['Records'][0]['s3']['bucket']['name']
-    bucket_object=msg['Records'][0]['s3']['object']['key']
+    bucket_eventName=msg['eventName']
+    bucket_name=msg['s3']['bucket']['name']
+    bucket_object=msg['s3']['object']['key']
     data = {'bucket_eventName':bucket_eventName, 'bucket_name':bucket_name, 'bucket_object':bucket_object}
     return data
 
