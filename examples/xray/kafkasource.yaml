@@ -5,9 +5,9 @@ metadata:
   namespace: xray
 spec:
   consumerGroup: xray
-  bootstrapServers: my-cluster-kafka-bootstrap.kafka:9092
+  bootstrapServers: my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
   topics: storage
   sink:
-    apiVersion: serving.knative.dev/v1alpha1
+    apiVersion: serving.knative.dev/v1beta1
     kind: Service
     name: xray
