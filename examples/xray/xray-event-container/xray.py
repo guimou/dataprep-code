@@ -1,23 +1,21 @@
+import http.server
+import io
+import json
+import logging
+import os
+import random
+import socketserver
 import sys
+from hashlib import blake2b
+from io import BytesIO
+
 import boto3
 import numpy as np
-import os
-import logging
-import json
-import random
-
-import http.server
-import socketserver
-import json
-import logging
-import io
-from cloudevents.sdk.event import v02
-from cloudevents.sdk import marshaller
 from keras.models import load_model
 from keras.preprocessing import image
-from io import BytesIO
-from PIL import Image, ImageFont, ImageDraw, ImageFilter
-from hashlib import blake2b
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from cloudevents.sdk import marshaller
+from cloudevents.sdk.event import v02
 
 access_key = os.environ['AWS_ACCESS_KEY_ID']
 secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
