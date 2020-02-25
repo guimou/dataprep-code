@@ -21,7 +21,7 @@ access_key = os.environ['AWS_ACCESS_KEY_ID']
 secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
 service_point = os.environ['service_point']
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 s3client = boto3.client('s3','us-east-1', endpoint_url=service_point,
                        aws_access_key_id = access_key,
@@ -50,6 +50,7 @@ class CloudeventsServer(object):
         """
         class BaseHttp(http.server.BaseHTTPRequestHandler):
             def do_POST(self):
+                logging.info('POST received')
                 content_type = self.headers.get('Content-Type')
                 content_len = int(self.headers.get('Content-Length'))
                 headers = dict(self.headers)
