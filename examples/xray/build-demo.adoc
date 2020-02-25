@@ -1,1 +1,88 @@
+:imagesdir: ./img
+
 = XRay Demo Building Walkthrough
+
+== RHCS installation on OCP
+
+The standard procedure to deploy the rook operator and create a clustet is described at https://rook.io/docs/rook/v1.2/ceph-openshift.html. We will modify it a little bit to use the RHCS4 image.
+
+Begin the procedure as described by fetching the files at https://github.com/rook/rook/tree/release-1.2/cluster/examples/kubernetes/ceph and installing the first two ones:
+
+[source,bash]
+----
+oc create -f common.yaml
+oc create -f operator-openshift.yaml
+----
+
+As we will use the RHCS4 image, we first have to install it on OCP:
+
+* Get your secret token for the Red Hat Registry access and import it as a secret
+* Import the image, which will create an Image Stream:
+
+[source,bash]
+----
+oc import-image rhceph/rhceph-4-rhel8 --from=registry.redhat.io/rhceph/rhceph-4-rhel8 --confirm
+----
+
+You can now adapt the cluster.yaml to your specific configuration and needs (type of storage, size...). For the demo you must change the image line to use the one we just imported. Also, make sure to enable the dashboard and disable SSL if you don't have trusted certificate in your environment.
+
+.cluster.yaml (excerpt)
+[source,yaml]
+----
+  cephVersion:
+    image: registry.redhat.io/rhceph/rhceph-4-rhel8
+    allowUnsupported: true
+  dashboard:
+    enabled: true
+    #ssl: true
+----
+
+Create the Ceph cluster:
+
+[source,bash]
+----
+oc create -f cluster.yaml
+----
+
+Create the Object Store (Ceph component that will provide object storage). You can modify the file if you want. In this demo I changed the name for 'rook-obj', that's the reference you will find in some address and commands:
+
+[source,bash]
+----
+oc create -f object.yaml
+----
+
+Install the Ceph toolbox:
+
+[source,bash]
+----
+oc create -f toolbox.yaml
+----
+
+To be able to interact with the Object Store from the Ceph Dashboard, we have to create a special user with system rights. This user will be used by the Dashboard to interact with the gateway.
+
+Connect to the toolbox Pod we just created (CLI or using the Terminal view from the OCP UI), and create the user:
+
+[source,bash]
+----
+radosgw-admin user create --uid=dash-rgw-user --display-name=RGW-Dashboard-User --system
+----
+
+From the output, note the Access Key and the Secret Key that have been generated for this user. In OCP, also note the Service name for the Ceph RGW (in this example 'rook-ceph-rgw-rook-obj.rook-ceph'). Configure the Dashboard to use those information:
+
+[source,bash]
+----
+ceph dashboard set-rgw-api-access-key YOU_ACCESS_KEY
+
+ceph dashboard set-rgw-api-secret-key YOUR_SECRET_KEY
+
+ceph dashboard set-rgw-api-host rook-ceph-rgw-rook-obj.rook-ceph.svc.cluster.local
+
+ceph dashboard set-rgw-api-port 80
+----
+
+If it's not there, create a Route to the Ceph RGW Service. You can now access the Ceph Dashboard through this route. Of course you will have to log in. The user name is *admin*, the password has been configured as a Secret in the rook-ceph project, named *rook-ceph-dashboard-password*.
+
+Once logged in you should see this:
+
+image::ceph-dashboard.png[Ceph Dashboard]
+
