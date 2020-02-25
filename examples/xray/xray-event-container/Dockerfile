@@ -6,4 +6,4 @@ COPY requirements.txt xray.py pneumonia_model.h5 FreeMono.ttf ./
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "xray.py"]
+CMD ["python", "-u", "xray.py"]

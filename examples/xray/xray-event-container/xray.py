@@ -11,8 +11,7 @@ from io import BytesIO
 
 import boto3
 import numpy as np
-from keras.models import load_model
-from keras.preprocessing import image
+import tensorflow as tf
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from cloudevents.sdk import marshaller
 from cloudevents.sdk.event import v02
@@ -21,7 +20,7 @@ access_key = os.environ['AWS_ACCESS_KEY_ID']
 secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
 service_point = os.environ['service_point']
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 s3client = boto3.client('s3','us-east-1', endpoint_url=service_point,
                        aws_access_key_id = access_key,
@@ -60,10 +59,16 @@ class CloudeventsServer(object):
                 logging.info(data)
 
                 if content_type != 'application/json':
+                    logging.info('Not JSON')
                     data = io.StringIO(data)
 
-                event = v02.Event()
-                event = m.FromRequest(event, headers, data, json.loads)
+                try:
+                    event = v02.Event()
+                    event = m.FromRequest(event, headers, data, json.loads)
+                except Exception as e:
+                    logging.error(f"Event error: {e}")
+                    raise   
+
                 logging.info(event)
                 func(event)
                 self.send_response(204)
@@ -80,6 +85,7 @@ class CloudeventsServer(object):
                 raise
 
 def extract_data(msg):
+    logging.info('extract_data')
     bucket_eventName=msg['eventName']
     bucket_name=msg['s3']['bucket']['name']
     bucket_object=msg['s3']['object']['key']
@@ -87,19 +93,22 @@ def extract_data(msg):
     return data
 
 def load_image(bucket_name, img_path):
+    logging.info('load_image')
     obj = s3client.get_object(Bucket=bucket_name, Key=img_path)
-    
-    img = image.load_img(BytesIO(obj['Body'].read()), target_size=(150, 150))
-    img_tensor = image.img_to_array(img)                    # (height, width, channels)
+    img = tf.keras.preprocessing.image.load_img(BytesIO(obj['Body'].read()), target_size=(150, 150))
+    img_tensor = tf.keras.preprocessing.image.img_to_array(img)                    # (height, width, channels)
     img_tensor = np.expand_dims(img_tensor, axis=0)         # (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
     img_tensor /= 255.                                      # imshow expects values in the range [0, 1]
 
     return img_tensor
 
 def prediction(new_image):
+    logging.info('prediction')
     try:
-        model = load_model('./pneumonia_model.h5')
+        model = tf.keras.models.load_model('./pneumonia_model.h5')
+        logging.info('model loaded')
         pred = model.predict(new_image)
+        logging.info('prediction made')
     
         if pred[0][0] > 0.80:
             label='Pneumonia, risk=' + str(round(pred[0][0]*100,2)) + '%'
@@ -110,19 +119,20 @@ def prediction(new_image):
     except Exception as e:
         logging.error(f"Prediction error: {e}")
         raise   
+    logging.info('label')
     prediction = {'label':label,'pred':pred[0][0]}
     return prediction
 
 def anonymize(img,img_name):
     # Use GaussianBlur to blur the PII 5 times.
-    logging.info('Blurring')
+    logging.info('blurring')
     box = (0, img.size[1]-100, 300, img.size[1])
     crop_img = img.crop(box)
     blur_img = crop_img.filter(ImageFilter.GaussianBlur(radius=5))
     img.paste(blur_img, box)
 
     # Anonymize filename  
-    logging.info('Anonymizing filename') 
+    logging.info('anonymizing filename') 
     prefix = img_name.split('_')[0]
     patient_id = img_name.split('_')[2]
     suffix = img_name.split('_')[-1]
