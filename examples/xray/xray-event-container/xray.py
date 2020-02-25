@@ -56,12 +56,15 @@ class CloudeventsServer(object):
                 headers = dict(self.headers)
                 data = self.rfile.read(content_len)
                 data = data.decode('utf-8')
+                logging.info(content_type)
+                logging.info(data)
 
                 if content_type != 'application/json':
                     data = io.StringIO(data)
 
                 event = v02.Event()
                 event = m.FromRequest(event, headers, data, json.loads)
+                logging.info(event)
                 func(event)
                 self.send_response(204)
                 self.end_headers()
