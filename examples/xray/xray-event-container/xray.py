@@ -196,7 +196,11 @@ def run_event(event):
             if result['pred'] > 0.80:
                 img_name = img_key.split('/')[-1]
                 anonymized_data = anonymize(img,img_name)
-                anonymized_image_key = img_key.rsplit('/', 1)[0] + '/' + anonymized_data['anon_img_name']
+                split_key = img_key.rsplit('/', 1)
+                if len(split_key) == 1:
+                    anonymized_image_key = anonymized_data['anon_img_name']
+                else:
+                    anonymized_image_key = split_key[0] + '/' + anonymized_data['anon_img_name']
                 anonymized_img = anonymized_data['img_anon']
                 buffer = BytesIO()
                 anonymized_img.save(buffer, get_safe_ext(anonymized_image_key))
