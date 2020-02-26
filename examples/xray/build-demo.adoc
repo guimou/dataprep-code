@@ -39,7 +39,7 @@ You can now adapt the cluster.yaml from the rook-ceph repo to your specific conf
     #ssl: true
 ----
 
-In the *utils* folder you will find two demo *cluster-xxx.yaml* files for *AWS* or *VMware* environment.
+*Note*: In the *utils* folder you will find two demo *cluster-xxx.yaml* files for *AWS* or *VMware* environment.
 
 Create the Ceph cluster:
 
@@ -48,11 +48,13 @@ Create the Ceph cluster:
 oc create -f cluster.yaml
 ----
 
+Wait for all the pods in the *rook-ceph* namespace to be in the running state (~5mn). The last ones will be *rook-ceph-osd-0-xxx* to *rook-ceph-osd-2-xxx*.
+
 Install the Ceph toolbox (usefull later):
 
 [source,bash]
 ----
-oc create -f toolbox.yaml
+oc create -f https://github.com/rook/rook/raw/release-1.2/cluster/examples/kubernetes/ceph/toolbox.yaml
 ----
 
 === Object Store
