@@ -88,12 +88,14 @@ ceph dashboard set-rgw-api-access-key YOU_ACCESS_KEY
 
 ceph dashboard set-rgw-api-secret-key YOUR_SECRET_KEY
 
-ceph dashboard set-rgw-api-host rook-ceph-rgw-rook-obj.rook-ceph.svc.cluster.local
+ceph dashboard set-rgw-api-host rook-ceph-rgw-rook-obj.rook-ceph
 
 ceph dashboard set-rgw-api-port 80
 ----
 
-If it's not there, create a Route to the Ceph RGW Service. You can now access the Ceph Dashboard through this route. Of course you will have to log in. The user name is *admin*, the password has been configured as a Secret in the rook-ceph project, named *rook-ceph-dashboard-password*.
+Create a Route to the Ceph Dashboard Service, *rook-ceph-mgr-dashboard* (e.g. *dashboard*). If you secure it make sure certificates are trusted by the clients you will use.
+
+You can now access the Ceph Dashboard through this route. Of course you will have to log in. The user name is *admin*, the password has been configured as a Secret in the rook-ceph project, named *rook-ceph-dashboard-password*.
 
 Once logged in you will access the Ceph Dashboard:
 
@@ -107,11 +109,13 @@ Select the newly created user, click on the *Keys* tab, select the user, and cli
 
 image::user_keys.png[User keys]
 
-From the menu *Object Gateway => Buckets*, create the following buckets, with the user demo-xray as Owner:
+From the menu *Object Gateway => Buckets*, create the following buckets, with the user *demo-xray* as Owner:
 
 * *xray-data-in*
 * *xray-data-in-processed*
 * *xray-data-in-anonymized*
+
+Create a Route to the Ceph RGW Service, *rook-ceph-rgw-rook-obj* (e.g. *s3*). If you secure it make sure certificates are trusted by the clients you will use.
 
 == KNative Operators Installation
 
@@ -143,6 +147,8 @@ oc create -f kafdrop.yaml
 ----
 
 From Kafdrop you can also create topics, look at messages,...
+
+It will deploy it and create a Route to access the UI.
 
 == Configure notifications
 

@@ -35,7 +35,7 @@ spec:
     app: kafdrop
   ports:
     - protocol: TCP
-      port: 8080
+      port: 9000
       targetPort: 9000
 ---
 kind: Route
@@ -50,5 +50,5 @@ spec:
     name: kafdrop
     weight: 100
   port:
-    targetPort: 8080
+    targetPort: 9000
   wildcardPolicy: None
