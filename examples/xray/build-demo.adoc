@@ -127,6 +127,14 @@ The following Operators must be installed from the OperatorHub, for all namespac
 
 This will also automatically deploy all the other components (Service Mesh, Kiali, Jaeger, ElasticSearch).
 
+To finish the installation of KNative Serving, you must create a KNativeServing Object. In the *utils* folder you will find the *serving.yaml* file.
+
+[source,bash]
+----
+oc create -f serving.yaml
+----
+
+
 == Kafka Installation
 
 Create a new project named *kafka*.
