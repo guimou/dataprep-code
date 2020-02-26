@@ -8,12 +8,12 @@
 
 The standard procedure to deploy the rook operator and create a clustet is described at https://rook.io/docs/rook/v1.2/ceph-openshift.html. We will modify it a little bit to use the RHCS4 image.
 
-Begin the procedure as described by fetching the files at https://github.com/rook/rook/tree/release-1.2/cluster/examples/kubernetes/ceph and installing the first two ones:
+Begin the procedure as described by fetching and installing the files *common.yaml* and *openshift-operator.yaml* at https://github.com/rook/rook/tree/release-1.2/cluster/examples/kubernetes/ceph:
 
 [source,bash]
 ----
-oc create -f common.yaml
-oc create -f operator-openshift.yaml
+oc create -f oc create -f https://github.com/rook/rook/raw/release-1.2/cluster/examples/kubernetes/ceph/common.yaml
+oc create -f oc create -f https://github.com/rook/rook/raw/release-1.2/cluster/examples/kubernetes/ceph/operator-openshift.yaml
 ----
 
 As we will use the RHCS4 image, we first have to install it on OCP:
@@ -26,7 +26,7 @@ As we will use the RHCS4 image, we first have to install it on OCP:
 oc import-image rhceph/rhceph-4-rhel8 --from=registry.redhat.io/rhceph/rhceph-4-rhel8 --confirm
 ----
 
-You can now adapt the cluster.yaml to your specific configuration and needs (type of storage, size...). For the demo *you must change the image line to use the one we just imported*. Also, make sure to enable the dashboard and disable SSL if you don't have trusted certificate in your environment.
+You can now adapt the cluster.yaml from the rook-ceph repo to your specific configuration and needs (type of storage, size...). For the demo *you must change the image line to use the one we just imported*. Also, make sure to enable the dashboard and disable SSL if you don't have trusted certificate in your environment.
 
 .cluster.yaml (excerpt)
 [source,yaml]
@@ -38,6 +38,8 @@ You can now adapt the cluster.yaml to your specific configuration and needs (typ
     enabled: true
     #ssl: true
 ----
+
+In the *utils* folder you will find two demo *cluster-xxx.yaml* files for *AWS* or *VMware* environment.
 
 Create the Ceph cluster:
 
