@@ -12,8 +12,8 @@ Begin the procedure as described by fetching and installing the files *common.ya
 
 [source,bash]
 ----
-oc create -f oc create -f https://github.com/rook/rook/raw/release-1.2/cluster/examples/kubernetes/ceph/common.yaml
-oc create -f oc create -f https://github.com/rook/rook/raw/release-1.2/cluster/examples/kubernetes/ceph/operator-openshift.yaml
+oc create -f https://github.com/rook/rook/raw/release-1.2/cluster/examples/kubernetes/ceph/common.yaml
+oc create -f https://github.com/rook/rook/raw/release-1.2/cluster/examples/kubernetes/ceph/operator-openshift.yaml
 ----
 
 As we will use the RHCS4 image, we first have to install it on OCP:
