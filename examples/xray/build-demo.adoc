@@ -134,6 +134,13 @@ To finish the installation of KNative Serving, you must create a KNativeServing 
 oc create -f serving.yaml
 ----
 
+You must also install the KafkaSource CRD:
+
+[source,bash]
+----
+oc apply -f https://storage.googleapis.com/knative-releases/eventing-contrib/latest/kafka-source.yaml
+----
+
 
 == Kafka Installation
 
