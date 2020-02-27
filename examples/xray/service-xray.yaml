@@ -7,7 +7,7 @@ spec:
   template:
     spec:
       containers:
-      - image: quay.io/guimou/xray:master
+      - image: quay.io/guimou/xray:latest
         env:
         - name: AWS_ACCESS_KEY_ID
           valueFrom:

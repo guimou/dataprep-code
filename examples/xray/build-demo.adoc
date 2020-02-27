@@ -1,4 +1,5 @@
 :imagesdir: ./img
+:toc:
 
 = XRay Demo Building Walkthrough
 
@@ -6,7 +7,7 @@
 
 === Rook operator and Ceph cluster
 
-The standard procedure to deploy the rook operator and create a clustet is described at https://rook.io/docs/rook/v1.2/ceph-openshift.html. We will modify it a little bit to use the RHCS4 image.
+The standard procedure to deploy the rook operator and create a cluster is described at https://rook.io/docs/rook/v1.2/ceph-openshift.html. We will modify it a little bit to use the RHCS4 image.
 
 Begin the procedure as described by fetching and installing the files *common.yaml* and *openshift-operator.yaml* at https://github.com/rook/rook/tree/release-1.2/cluster/examples/kubernetes/ceph:
 
@@ -16,9 +17,19 @@ oc create -f https://github.com/rook/rook/raw/release-1.2/cluster/examples/kuber
 oc create -f https://github.com/rook/rook/raw/release-1.2/cluster/examples/kubernetes/ceph/operator-openshift.yaml
 ----
 
+This will have created a *rook-ceph* project. The following commands must be run from this project:
+
+[source,bash]
+----
+oc project rook-ceph
+----
+
 As we will use the RHCS4 image, we first have to install it on OCP:
 
-* Get your secret token for the Red Hat Registry access and import it as a secret
+* To get your secret token for the Red Hat Registry access, connect at https://access.redhat.com/terms-based-registry/
+
+* If you don't already have a token, you can generate a new one. When you access it there is directly an OpenShift Secret tab where you will the instructions on how to install it as a secret in the rook-ceph project.
+
 * Import the image, which will create an Image Stream:
 
 [source,bash]
@@ -26,7 +37,7 @@ As we will use the RHCS4 image, we first have to install it on OCP:
 oc import-image rhceph/rhceph-4-rhel8 --from=registry.redhat.io/rhceph/rhceph-4-rhel8 --confirm
 ----
 
-You can now adapt the cluster.yaml from the rook-ceph repo to your specific configuration and needs (type of storage, size...). For the demo *you must change the image line to use the one we just imported*. Also, make sure to enable the dashboard and disable SSL if you don't have trusted certificate in your environment.
+You can now adapt the cluster.yaml from the rook-ceph repo to your specific configuration and needs (type of storage, size...). For the demo *you must at least change the image line to use the one we just imported, and set "allowUnsupported" to true*. Also, make sure to enable the dashboard and disable SSL if you don't have trusted certificates in your environment.
 
 .cluster.yaml (excerpt)
 [source,yaml]
@@ -165,7 +176,7 @@ From Kafdrop you can also create topics, look at messages,...
 
 It will deploy it and create a Route to access the UI.
 
-== Configure notifications
+== Notifications configuration
 
 The easiest way is to use Postman. in the *utils* folder you will find a collection of all the requests you can use.
 
@@ -185,13 +196,13 @@ It will return the topic information in the form of arn:aws:sns:rook-obj::storag
 [source]
 ----
 PUT http://your.ceph.rgw.url/xray-data-in?notification
----- 
+----
 
 with the parameters passed as XML in the body of the request (including the topic you just created):
 
 [source,XML]
 ----
-<NotificationConfiguration xmlns=”http://s3.amazonaws.com/doc/2006-03-01/">
+<NotificationConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
  <TopicConfiguration>
  <Id>storage</Id>
  <Topic>arn:aws:sns:rook-obj::storage</Topic>
@@ -199,7 +210,7 @@ with the parameters passed as XML in the body of the request (including the topi
 </NotificationConfiguration>
 ----
 
-== Creating the pipeline
+== Pipeline Creation
 
 === Project preparation
 
@@ -208,14 +219,14 @@ Create the xray project:
 [source, bash]
 ----
 oc new-project xray
----- 
+----
 
 You will need to prepare a *secret* that will be used by the application to access the storage. Modify the file *secret.yaml* with the Access key and Secret key for the demo-xray user. Then create the secret:
 
 [source, bash]
 ----
 oc create -f secret.yaml
----- 
+----
 
 === Deploy the Service (Serverless)
 
@@ -226,7 +237,7 @@ Create the Service:
 [source, bash]
 ----
 oc create -f service-xray.yaml
----- 
+----
 
 === Deploy the KafkaSource Eventing
 
@@ -237,7 +248,7 @@ Create the KafkaSource:
 [source, bash]
 ----
 oc create -f kafkasource.yaml
----- 
+----
 
 == Demoing the pipeline
 
