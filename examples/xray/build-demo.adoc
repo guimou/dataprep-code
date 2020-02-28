@@ -106,6 +106,11 @@ ceph dashboard set-rgw-api-port 80
 
 Create a Route to the Ceph Dashboard Service, *rook-ceph-mgr-dashboard* (e.g. *dashboard*). If you secure it make sure certificates are trusted by the clients you will use.
 
+[source,bash]
+----
+oc expose svc/rook-ceph-mgr-dashboard --name ceph-dash
+----
+
 You can now access the Ceph Dashboard through this route. Of course you will have to log in. The user name is *admin*, the password has been configured as a Secret in the rook-ceph project, named *rook-ceph-dashboard-password*.
 
 Once logged in you will access the Ceph Dashboard:
@@ -127,6 +132,11 @@ From the menu *Object Gateway => Buckets*, create the following buckets, with th
 * *xray-data-in-anonymized*
 
 Create a Route to the Ceph RGW Service, *rook-ceph-rgw-rook-obj* (e.g. *s3*). If you secure it make sure certificates are trusted by the clients you will use.
+
+[source,bash]
+----
+oc expose svc/rook-ceph-rgw-rook-obj --name s3
+----
 
 == KNative Operators Installation
 
@@ -230,7 +240,7 @@ oc create -f secret.yaml
 
 === Deploy the Service (Serverless)
 
-Modify the file *service-xray.yaml* with the address of your RGW endpoint. If you have used the names from this demo it should be *rook-ceph-rgw-rook-obj.rook-ceph*
+Modify the file *service-xray.yaml* with the address of your RGW endpoint. If you have used the names from this demo it should be *http://rook-ceph-rgw-rook-obj.rook-ceph*
 
 Create the Service:
 
