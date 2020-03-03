@@ -23,19 +23,7 @@ However, all the necessary connection information are automatically populated as
 
 - OCS is deployed and working in your OCP cluster. Please take note of your S3 endpoint. That's the route named "s3" in your openshift-storage project.
 - You need to create a project called "odh" and you must be set to work within it. All the commands and configuration files are based on this asumption. If you use another project name, you will have to make the necessary changes to the commands or scripts.
-
-## Operator image
-
-We will use a custom config_map to add more configuration to JupyterHub. However this feature is not present yet in version 0.5.0 of Open Data Hub. Therefore we will have to use a custom image until the relevant PR is accepted.
-This image is at: quay.io/llasmith/opendatahub-operator:jupyterhub-config
-
-There are two different ways to use this image:
-
-1. Follow the steps here for a manual install of ODH: <https://gitlab.com/opendatahub/opendatahub-operator/blob/master/docs/manual-installation.adoc>
-2. If you already have deployed the ODH operator, a quick and dirty hack is just to replace the image name in the odh-operator deployment. When you save the YAML it will redeploy with the new image (and OLM is not reversing this obviously, which is lucky for us):
-
-![YAML Operator image modification](odh-operator-image.png)
-
+- In the odh project, deploy OpenDataHub operator (wait to create an ODH instance).
 
 ## JupyterHub configuration Config Map
 
@@ -123,4 +111,3 @@ If everytrhing went well, you can connect to JupyterHub and should see all your 
 And when you launch your notebook, you now have direct access to the brand new object storage bucket that was automatically provisioned for you. Here datalake-odh-... (Yeah, I know we still have to do some work on naming, as well as timestamp...).
 
 ![Jupyter data bucket](jupyter-bucket.png)
-
