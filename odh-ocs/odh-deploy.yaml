@@ -19,7 +19,7 @@ spec:
     odh_deploy: true
     registry: quay.io
     repository: odh-jupyterhub
-    s3_endpoint_url: http://s3nossl-openshift-storage.apps.perf3.ocs.lab.eng.blr.redhat.com/
+    s3_endpoint_url: http://s3.openshift-storage/
     spark_configmap_template: jupyterhub-spark-operator-configmap
     spark_cpu: 3
     spark_home: /opt/app-root/lib/python3.6/site-packages/pyspark/
