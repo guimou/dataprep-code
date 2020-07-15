@@ -23,7 +23,7 @@ spec:
   source:
     contextDir: minimal-notebook
     git:
-      ref: master
+      ref: s3
       uri: https://github.com/guimou/jupyter-notebooks
     type: Git
   strategy:
